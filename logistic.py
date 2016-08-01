@@ -1,33 +1,32 @@
 import numpy as np
 from scipy.special import expit as sigmoid
 
+def hypothesis(x, theta):
+  return sigmoid(np.dot(x, theta))
 
-num_features = 2
-num_classifications = 1
-iterations = 100
-
-# add 1 for the bias unit
-theta = np.zeros(num_features + 1)
-
-
-def hypothesis(theta, x_m_array):
-  return sigmoid(np.dot(x_m_array, np.transpose(theta)))
-
-def predition_classes(input):
+def predict_classes(input):
   return np.round(input)
 
-def cost_fn(h, theta, x, y):
-  hypothesis = h(theta, x)
-  return -y * np.log(hypothesis) - (1-y) * np.log(1 - hypothesis)
+def cost_fn(hyp, y):
+  return -y * np.log(hyp) - (1-y) * np.log(1 - hyp)
 
 def apply_gradient_descent(theta, alpha, x, y):
-  m = len(x)
-  hyp = np.dot(np.transpose(theta), x)
-  cost = hyp - y
-  updated_theta = theta - alpha / m * cost * theta
-  return theta
+  hyp = hypothesis(x, theta)
+  cost = cost_fn(hyp, y)
 
-def run(x, y):
+  # print alpha / len(hyp) * np.sum(np.transpose(x) * np.array(cost))
+  print alpha / len(hyp) * np.sum(np.transpose(x) * cost)
+  # print type(cost)
+
+  updated_theta = theta - alpha / len(hyp) * np.sum(cost) * x
+  return (updated_theta, np.sum(cost))
+
+def run(x, y, iterations=100, alpha=0.1):
   x_with_bias = np.pad(np.array(x), ((0,0),(1,0)), mode='constant', constant_values=1)
-  theta = np.zeros(len(x_with_bias))
-  hyp = hypothesis(theta, x)
+  y = np.array(y)
+  theta = np.zeros(x_with_bias.shape[1])
+
+  # for x in xrange(0, iterations):
+  #   theta, cost = apply_gradient_descent(theta, alpha, x_with_bias, y)
+  #   print 'iteration {}, cost {}'.format(x+1, cost)
+
