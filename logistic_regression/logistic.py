@@ -17,12 +17,13 @@ def apply_gradient_descent(theta, alpha, x, y):
   # These are the same
   # print (hyp - y).dot(x)
   # print np.sum((hyp - y) * x.T, 1)
+  # print (hyp-y).shape, x.shape, (hyp-y).dot(x).shape
 
-  updated_theta = theta - alpha * (hyp - y).dot(x)
+  updated_theta = theta - alpha / len(hyp) * (hyp - y).dot(x)
 
   return (updated_theta, cost)
 
-def run(x, y, max_iterations=10000000, alpha=0.001, converge=0.001, report_every=100):
+def run(x, y, max_iterations=10000000, alpha=0.01, converge=0.00001, report_every=10000):
   x_with_bias = np.pad(np.array(x), ((0,0),(1,0)), mode='constant', constant_values=1)
   y = np.array(y)
   theta = np.zeros(x_with_bias.shape[1])
