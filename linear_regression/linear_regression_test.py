@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 import linear_regression as lin_reg
+import math
 
 raw = pd.read_excel(('./data/kuiper.xls'))
 y = np.array(raw.loc[:, 'Price'])
@@ -56,6 +57,14 @@ for idx, numeric_col in enumerate(numeric_fields):
   mean = base_col.mean()
   scaled = base_col.apply(lambda x: (x - mean)/std)
   numeric_cols.append(scaled)
+
+  # # uncomment for second order vars
+  # second_order_base = base_col.apply(lambda x: math.pow(x, 2))
+  # so_std = second_order_base.std()
+  # so_mean = second_order_base.mean()
+  # so_final = second_order_base.apply(lambda x: (x - so_mean)/so_std)
+  # so_final = so_final.rename(so_final.name+'-squared')
+  # numeric_cols.append(so_final)
 
 final_x = join_cols(category_columns, doors_col, numeric_cols, boolean_fields)
 
