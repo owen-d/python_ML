@@ -59,4 +59,8 @@ for idx, numeric_col in enumerate(numeric_fields):
 
 final_x = join_cols(category_columns, doors_col, numeric_cols, boolean_fields)
 
-print 'resulting cost: {}, theta: {}'.format(lin_reg.run(final_x, y))
+theta, cost, hyp = lin_reg.run(final_x, y, max_iterations=1000000)
+abs_dif = np.absolute(hyp-y)
+
+print 'resulting cost: {}, theta: {}'.format(cost, theta)
+print 'max distance: {}, min distance: {}, avg distance: {}, std dev of distance: {}'.format(abs_dif.max(), abs_dif.min(), abs_dif.mean(), abs_dif.std())

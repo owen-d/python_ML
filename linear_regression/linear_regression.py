@@ -15,7 +15,7 @@ def apply_gradient_descent(theta, alpha, x, y):
 
   return (new_theta, cost)
 
-def run(x, y, max_iterations=10000000, alpha=0.001, converge=0.00001, report_every=10000):
+def run(x, y, max_iterations=10000000, alpha=0.01, converge=0.00001, report_every=10000):
   x_with_bias = np.pad(np.array(x), ((0,0),(1,0)), mode='constant', constant_values=1)
   y = np.array(y)
   theta = np.zeros(x_with_bias.shape[1])
@@ -25,8 +25,9 @@ def run(x, y, max_iterations=10000000, alpha=0.001, converge=0.00001, report_eve
 
     if cost < converge:
       print 'Convergence hit! Iteration #{}, cost: {}'.format(x+1, cost)
-      return (theta, cost)
+      return (theta, cost, hypothesis(x_with_bias, theta))
 
     if x % report_every == 0:
       print 'iteration #{}, cost {}'.format(x+1, cost)
 
+  return (theta, cost, hypothesis(x_with_bias, theta))
