@@ -9,5 +9,6 @@ x2 = csv_input.loc[:, 'SepalLengthCm':'SepalWidthCm']
 y = csv_input['Species'].map(lambda x: int(x == 'Iris-setosa'))
 
 
+# x2.plot(kind="scatter", x="SepalLengthCm", y="SepalWidthCm")
 # run our shit
-run(x2, y)
+run(x, y)
