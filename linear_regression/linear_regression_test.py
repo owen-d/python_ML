@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+import linear_regression as lin_reg
 
 raw = pd.read_excel(('./data/kuiper.xls'))
 y = np.array(raw.loc[:, 'Price'])
@@ -57,3 +58,5 @@ for idx, numeric_col in enumerate(numeric_fields):
   numeric_cols.append(scaled)
 
 final_x = join_cols(category_columns, doors_col, numeric_cols, boolean_fields)
+
+print 'resulting cost: {}, theta: {}'.format(lin_reg.run(final_x, y))
