@@ -66,19 +66,30 @@ class Net:
 
   def forward_pass(self, input, theta, bias=True):
     if bias == True:
-      return np.pad(np.array(input), ((0,0),(1,0)), mode='constant', constant_values=1).dot(theta)
+      z = np.pad(np.array(input), ((0,0),(1,0)), mode='constant', constant_values=1).dot(theta)
     else:
-      return input.dot(theta)
+      z = input.dot(theta)
+    # return both the z (theta * input), as well as the activations (a, representing activation(z))
+    return (z, self.activation(z))
 
-  def predict(self):
-    res = self.x
+  def build_activations(self):
+    z_a = []
     last_idx = len(self.weights) - 1
     for idx, theta in enumerate(self.weights):
+      # use previous activation, defaulting to x (original features)
+      prev_a = z_a[-1][1] if len(z_a) is not 0 else self.x
       if idx == last_idx:
-        res = self.forward_pass(res, theta, bias=False)
+        z_a.append(self.forward_pass(prev_a, theta, bias=False))
       else:
-        res = self.forward_pass(res, theta, bias=True)
-    return res
+        z_a.append(self.forward_pass(prev_a, theta, bias=True))
+
+    return z_a
+
+  def back_prop():
+    pass
+
+  def build_deltas():
+    pass
 
 # for i = 1; i = m; -++:
 #   forward prop(xi, yi) -> get activations (a)
