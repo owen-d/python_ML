@@ -84,7 +84,7 @@ class Net:
   def back_prop(self, d_prev, theta, a_cur):
     return np.multiply(theta.dot(d_prev), np.multiply(a, (1 - a)))
 
-  def build_deltas(self, y, zs, weights):
+  def build_layer_deltas(self, y, zs, weights):
     # zip will trim the final z, which we don't need
     # b/c we've already calc'd the final delta as h(x)-y
     rev_theta_zs = list(reversed(zip(weights, zs)))
@@ -94,17 +94,22 @@ class Net:
     deltas = [base_error]
 
     # loop through all the weight/z combinations in reverse order
-    for i in range(0, len(rev_theta_zs)):
+    for i in range(0, self.num_layers):
       # clip bias, as it is not affecting preceding layers
       theta_l = rev_theta_zs[i][0][1:,:]
       g_prime = self.activation(rev_theta_zs[i][1], deriv=True)
       delta_l_plus_one = deltas[i]
-      print i, delta_l_plus_one.shape, theta_l.T.shape, rev_theta_zs[i][1].shape
+      # print i, delta_l_plus_one.shape, theta_l.T.shape, rev_theta_zs[i][1].shape
       delta_l = np.multiply(delta_l_plus_one.dot(theta_l.T), g_prime)
       deltas.append(delta_l)
 
     return list(reversed(deltas))
 
+  def build_theta_deltas(self, accum_deltas, thetas, zs, layer_deltas):
+    # since there are the same # of layer_deltas as thetas (due to no input layer delta),
+    # zipping them together accomplishes the a^l * d^(l+1) offsetting
+    for theta, accum_delta, layer_delta, z in zip(thetas, accum_deltas, layer_deltas, zs[1:-1]):
+      addition = self.activation(zs[i], deriv=False).T.dot(layer_deltas[i])
 # for i = 1; i = m; -++:
 #   forward prop(xi, yi) -> get activations (a)
 #   backward prop(xi, yi) -> get delta (d) terms
