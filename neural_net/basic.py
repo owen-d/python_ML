@@ -55,7 +55,7 @@ class Net:
         shape = (num_features+1, hidden_length)
       # last
       elif x == num_layers:
-        shape = (hidden_length, num_classes)
+        shape = (hidden_length+1, num_classes)
       # hidden->hidden (all others)
       else :
         shape = (hidden_length+1, hidden_length)
@@ -78,19 +78,16 @@ class Net:
     for idx, theta in enumerate(self.weights):
       # use previous activation, defaulting to x (original features)
       prev_a = self.activation(zs[-1])
-      if idx == last_idx:
-        zs.append(self.forward_pass(prev_a, theta, bias=False))
-      else:
-        zs.append(self.forward_pass(prev_a, theta, bias=True))
-
+      zs.append(self.forward_pass(prev_a, theta))
     return zs
 
   def back_prop(self, d_prev, theta, a_cur):
     return np.multiply(theta.dot(d_prev), np.multiply(a, (1 - a)))
 
   def build_deltas(self, y, zs, weights):
-    # zip will helpfully trim the first z, which = x, if we reverse them before providing them as args
-    rev_theta_zs = list(zip(reversed(weights), reversed(zs)))
+    # zip will trim the final z, which we don't need
+    # b/c we've already calc'd the final delta as h(x)-y
+    rev_theta_zs = list(reversed(zip(weights, zs)))
     # for a, b in rev_theta_zs:
     #   print a.shape, b.shape
     base_error = self.activation(zs[-1]) - y
@@ -98,13 +95,12 @@ class Net:
 
     # loop through all the weight/z combinations in reverse order
     for i in range(0, len(rev_theta_zs)):
-      theta_l = rev_theta_zs[i][0]
-      delta_l_plus_one = deltas[i-1]
+      # clip bias, as it is not affecting preceding layers
+      theta_l = rev_theta_zs[i][0][1:,:]
       g_prime = self.activation(rev_theta_zs[i][1], deriv=True)
-      print i, delta_l_plus_one.shape, theta_l.shape
+      delta_l_plus_one = deltas[i]
+      print i, delta_l_plus_one.shape, theta_l.T.shape, rev_theta_zs[i][1].shape
       delta_l = np.multiply(delta_l_plus_one.dot(theta_l.T), g_prime)
-      # make sure to clip off the bias unit, as it is not affecting previous layers
-      delta_l = delta_l[:, 1:]
       deltas.append(delta_l)
 
     return list(reversed(deltas))
