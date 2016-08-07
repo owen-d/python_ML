@@ -25,7 +25,7 @@ def back_prop(h_x, y, weights):
 
 
 class Net:
-  def __init__(self, x, y, num_layers=2, hidden_length=2, default_bias=0.01, activation=sigmoid):
+  def __init__(self, x, y, num_layers=2, hidden_length=5, default_bias=0.01, activation=sigmoid):
     self.x = x
     self.y = y
     self.m = len(x)
@@ -70,26 +70,44 @@ class Net:
     else:
       z = input.dot(theta)
     # return both the z (theta * input), as well as the activations (a, representing activation(z))
-    return (z, self.activation(z))
+    return z
 
   def build_activations(self):
-    z_a = []
+    zs = [self.x]
     last_idx = len(self.weights) - 1
     for idx, theta in enumerate(self.weights):
       # use previous activation, defaulting to x (original features)
-      prev_a = z_a[-1][1] if len(z_a) is not 0 else self.x
+      prev_a = self.activation(zs[-1])
       if idx == last_idx:
-        z_a.append(self.forward_pass(prev_a, theta, bias=False))
+        zs.append(self.forward_pass(prev_a, theta, bias=False))
       else:
-        z_a.append(self.forward_pass(prev_a, theta, bias=True))
+        zs.append(self.forward_pass(prev_a, theta, bias=True))
 
-    return z_a
+    return zs
 
-  def back_prop():
-    pass
+  def back_prop(self, d_prev, theta, a_cur):
+    return np.multiply(theta.dot(d_prev), np.multiply(a, (1 - a)))
 
-  def build_deltas():
-    pass
+  def build_deltas(self, y, zs, weights):
+    # zip will helpfully trim the first z, which = x, if we reverse them before providing them as args
+    rev_theta_zs = list(zip(reversed(weights), reversed(zs)))
+    # for a, b in rev_theta_zs:
+    #   print a.shape, b.shape
+    base_error = self.activation(zs[-1]) - y
+    deltas = [base_error]
+
+    # loop through all the weight/z combinations in reverse order
+    for i in range(0, len(rev_theta_zs)):
+      theta_l = rev_theta_zs[i][0]
+      delta_l_plus_one = deltas[i-1]
+      g_prime = self.activation(rev_theta_zs[i][1], deriv=True)
+      print i, delta_l_plus_one.shape, theta_l.shape
+      delta_l = np.multiply(delta_l_plus_one.dot(theta_l.T), g_prime)
+      # make sure to clip off the bias unit, as it is not affecting previous layers
+      delta_l = delta_l[:, 1:]
+      deltas.append(delta_l)
+
+    return list(reversed(deltas))
 
 # for i = 1; i = m; -++:
 #   forward prop(xi, yi) -> get activations (a)
