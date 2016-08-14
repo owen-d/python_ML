@@ -72,14 +72,16 @@ class Net:
     # return both the z (theta * input), as well as the activations (a, representing activation(z))
     return z
 
-  def build_activations(self):
-    zs = [self.x]
-    last_idx = len(self.weights) - 1
+  def build_zs_and_activations(self):
+    # results take the format (z, a)
+    results = [(None, self.x)]
     for idx, theta in enumerate(self.weights):
       # use previous activation, defaulting to x (original features)
-      prev_a = self.activation(zs[-1])
-      zs.append(self.forward_pass(prev_a, theta))
-    return zs
+      prev_a = results[-1][1]
+      next_z = self.forward_pass(prev_a, theta)
+      next_a = self.activation(next_z)
+      results.append((next_z, next_a))
+    return zip(*results)
 
   def back_prop(self, d_prev, theta, a_cur):
     return np.multiply(theta.dot(d_prev), np.multiply(a, (1 - a)))
