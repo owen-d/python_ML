@@ -13,11 +13,11 @@ from scipy.special import expit
 # _, num_classes = y.shape
 # m, num_inputs = x.shape
 def sigmoid(input, deriv=False):
-  input = expit(input)
+  sigmoided = expit(input)
   if deriv == True:
     return np.multiply(input, 1-input)
   else:
-    return input
+    return sigmoided
 
 def back_prop(h_x, y, weights):
   d_neg_1 = h_x - y
@@ -86,22 +86,22 @@ class Net:
   def back_prop(self, d_prev, theta, a_cur):
     return np.multiply(theta.dot(d_prev), np.multiply(a, (1 - a)))
 
-  def build_layer_deltas(self, y, zs, weights):
-    # zip will trim the final z, which we don't need
-    # b/c we've already calc'd the final delta as h(x)-y
-    rev_theta_zs = list(reversed(zip(weights, zs)))
-    # for a, b in rev_theta_zs:
-    #   print a.shape, b.shape
-    base_error = self.activation(zs[-1]) - y
+  def build_layer_deltas(self, y, activations, weights):
+    print map(lambda x: None if x is None else x.shape, weights), map(lambda x: None if x is None else x.shape, activations)
+
+    # since we have 1 more activation than weights, zip will conveniently trim it for us. It gets used below to compute base error
+    rev_theta_as = list(reversed(zip(weights, activations)))
+
+    base_error = activations[-1] - y
     deltas = [base_error]
 
     # loop through all the weight/z combinations in reverse order
     for i in range(0, self.num_layers):
       # clip bias, as it is not affecting preceding layers
-      theta_l = rev_theta_zs[i][0][1:,:]
-      g_prime = self.activation(rev_theta_zs[i][1], deriv=True)
+      theta_l = rev_theta_as[i][0][1:,:]
+      # theta_l = rev_theta_as[i][0]
+      g_prime = self.activation(rev_theta_as[i][1], deriv=True)
       delta_l_plus_one = deltas[i]
-      # print i, delta_l_plus_one.shape, theta_l.T.shape, rev_theta_zs[i][1].shape
       delta_l = np.multiply(delta_l_plus_one.dot(theta_l.T), g_prime)
       deltas.append(delta_l)
 
