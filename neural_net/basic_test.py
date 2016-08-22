@@ -9,9 +9,8 @@ csv_input = pd.read_csv('../logistic_regression/iris/Iris.csv')
 
 x = np.array( csv_input.loc[:, 'SepalLengthCm':'PetalWidthCm'])
 x2 = np.array(csv_input.loc[:, 'SepalLengthCm':'SepalWidthCm'])
-y = np.array(csv_input['Species'].map(lambda x: int(x == 'Iris-setosa')))
 
-y = np.vstack((y, np.zeros_like(y))).T
+y = np.atleast_2d(np.array(csv_input['Species'].map(lambda x: int(x == 'Iris-setosa'))))
 n = basic.Net(x2,y)
 regularization_term = 0
 alpha = 0.001

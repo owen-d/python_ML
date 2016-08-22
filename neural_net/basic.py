@@ -118,7 +118,7 @@ class Net:
     for a, l_d in zip(activations, layer_deltas):
       t_d = np.dot(a.T, l_d)
       # pad bias back in (always = 1 because )
-      res = np.pad(t_d, ((1,0), (0,0)), mode='constant', constant_values=1)
+      res = np.pad(t_d, ((1,0), (0,0)), mode='constant', constant_values=0)
       results.append(res)
     return results
 
