@@ -102,6 +102,7 @@ class Net:
       delta_l_plus_one = deltas[i]
       delta_l = np.multiply(delta_l_plus_one.dot(theta_l.T), g_prime)
       deltas.append(delta_l)
+      # deltas are dCost/dZ^l
 
     return list(reversed(deltas))
 
@@ -116,10 +117,14 @@ class Net:
     # since there is 1 less layer_delta than activation, zipping them together trims
     # the remaining activation and thus joins them in the beneficial (a^l, d^l+1) offset groups
     for a, l_d in zip(activations, layer_deltas):
+      # pad bias back in (always = 1). This is because we compute the partial derivative with respect to theta:
+      # dCost/dTheta = (dCost/dZ^l = delta of layer l+1)  * dZ^l/dTheta
+      # ... This equals:
+      # delta^l+1 * a^l (remember to pad bias back into this calc, where bias = 1 always)
+      a = np.pad(a, ((0,0), (1,0)), mode='constant', constant_values=1)
+      # print a.T.shape, l_d.shape
       t_d = np.dot(a.T, l_d)
-      # pad bias back in (always = 1 because )
-      res = np.pad(t_d, ((1,0), (0,0)), mode='constant', constant_values=0)
-      results.append(res)
+      results.append(t_d)
     return results
 
   def run(self, alpha=0.001, report_every=1000, epochs=100000, include_weights=False):
