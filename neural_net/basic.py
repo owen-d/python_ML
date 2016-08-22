@@ -12,6 +12,9 @@ from scipy.special import expit
 # model params
 # _, num_classes = y.shape
 # m, num_inputs = x.shape
+def cost_fn(y, hyp):
+  return (-y * np.log(hyp) - (1-y) * np.log(1 - hyp)).mean()
+
 def sigmoid(input, deriv=False):
   sigmoided = expit(input)
   if deriv == True:
@@ -23,7 +26,7 @@ def map_shapes(input):
   return map(lambda x: x.shape, input)
 
 class Net:
-  def __init__(self, x, y, num_layers=2, hidden_length=5, default_bias=0.01, activation=sigmoid):
+  def __init__(self, x, y, num_layers=2, hidden_length=5, default_bias=0.01, activation=sigmoid, cost_fn=cost_fn):
     self.x = x
     self.y = y
     self.m = len(x)
@@ -114,8 +117,20 @@ class Net:
     # the remaining activation and thus joins them in the beneficial (a^l, d^l+1) offset groups
     for a, l_d in zip(activations, layer_deltas):
       t_d = np.dot(a.T, l_d)
-      print a.T.shape, l_d.shape, t_d.shape
       # pad bias back in (always = 1 because )
       res = np.pad(t_d, ((1,0), (0,0)), mode='constant', constant_values=1)
       results.append(res)
     return results
+
+  def run(self, alpha=0.001, report_every=1000, epochs=100000, include_weights=False):
+    for i in xrange(0, epochs):
+      z, a = self.build_zs_and_activations()
+      cost = cost_fn(self.y, a[-1])
+      l_d = self.build_layer_deltas(self.y, a, self.get_weights())
+      t_d = self.build_theta_deltas(a, l_d)
+      new_weights = map(lambda (delta, theta): theta-(alpha * delta), zip(t_d, self.get_weights()))
+
+      if i % report_every is 0:
+        print cost, self.get_weights() if include_weights is True else None
+
+      self.set_weights(new_weights)

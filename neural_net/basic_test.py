@@ -12,23 +12,23 @@ x2 = np.array(csv_input.loc[:, 'SepalLengthCm':'SepalWidthCm'])
 y = np.array(csv_input['Species'].map(lambda x: int(x == 'Iris-setosa')))
 
 y = np.vstack((y, np.zeros_like(y))).T
-n = basic.Net(x,y)
+n = basic.Net(x2,y)
 regularization_term = 0
-alpha = 0.01
+alpha = 0.001
 
-def cost_fn(y, hyp):
-  return (-y * np.log(hyp) - (1-y) * np.log(1 - hyp)).mean()
+n.run(alpha=alpha)
 
-for i in xrange(0, 100):
-  z, a = n.build_zs_and_activations()
-  l_d = n.build_layer_deltas(y, a, n.get_weights())
-  t_d = n.build_theta_deltas(a, l_d)
-  # new_weights = map(lambda (delta, theta): theta-(alpha * delta), zip(t_d, n.get_weights()))
+
+# for i in xrange(0, 1000000):
+#   z, a = n.build_zs_and_activations()
+#   cost = cost_fn(y, a[-1])
+#   l_d = n.build_layer_deltas(y, a, n.get_weights())
+#   t_d = n.build_theta_deltas(a, l_d)
+#   new_weights = map(lambda (delta, theta): theta-(alpha * delta), zip(t_d, n.get_weights()))
+
+#   if i % 1000 is 0:
+#     print cost
+#   n.set_weights(new_weights)
   # print t_d[0]
   # print n.get_weights()[0].shape
   # print t_d
-  exit()
-
-
-# print cost_fn(y, a[-1])
-# print map(lambda x: None if x is None else x.shape, a)
