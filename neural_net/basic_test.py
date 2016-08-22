@@ -14,13 +14,14 @@ from sklearn.datasets import fetch_mldata
 #   y_cols.append(csv_input['Species'].map(lambda x: int(x == entry)))
 # y = np.array(y_cols).T
 
-num_sets = 10000
+num_sets = 70000
 mnist = fetch_mldata('MNIST original')
 x = mnist.data[:num_sets]
 y = np.atleast_2d(mnist.target).T[:num_sets]
 
 n = basic.Net(x,y, num_layers=2, hidden_length=4)
 regularization_term = 0
-alpha = 0.0001
+alpha = 0.001
 
 n.run(alpha=alpha, report_every=5)
+print n.get_weights()

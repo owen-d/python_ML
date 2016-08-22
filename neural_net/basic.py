@@ -122,7 +122,6 @@ class Net:
       # ... This equals:
       # delta^l+1 * a^l (remember to pad bias back into this calc, where bias = 1 always)
       a = np.pad(a, ((0,0), (1,0)), mode='constant', constant_values=1)
-      # print a.T.shape, l_d.shape
       t_d = np.dot(a.T, l_d)
       results.append(t_d)
     return results
@@ -130,10 +129,11 @@ class Net:
   def run(self, alpha=0.001, report_every=1000, epochs=100000, include_weights=False):
     for i in xrange(0, epochs):
       z, a = self.build_zs_and_activations()
+      m = len(self.y)
       cost = cost_fn(self.y, a[-1])
       l_d = self.build_layer_deltas(self.y, a, self.get_weights())
       t_d = self.build_theta_deltas(a, l_d)
-      new_weights = map(lambda (delta, theta): theta-(alpha * delta), zip(t_d, self.get_weights()))
+      new_weights = map(lambda (delta, theta): theta-(alpha * delta)/m, zip(t_d, self.get_weights()))
 
       if i % report_every is 0:
         print cost, self.get_weights() if include_weights is True else None
