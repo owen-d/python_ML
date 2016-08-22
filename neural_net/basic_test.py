@@ -19,13 +19,16 @@ alpha = 0.01
 def cost_fn(y, hyp):
   return (-y * np.log(hyp) - (1-y) * np.log(1 - hyp)).mean()
 
-z, a = n.build_zs_and_activations()
-l_d = n.build_layer_deltas(y, a, n.get_weights())
-for d in l_d:
-  print d.shape
+for i in xrange(0, 100):
+  z, a = n.build_zs_and_activations()
+  l_d = n.build_layer_deltas(y, a, n.get_weights())
+  t_d = n.build_theta_deltas(a, l_d)
+  # new_weights = map(lambda (delta, theta): theta-(alpha * delta), zip(t_d, n.get_weights()))
+  # print t_d[0]
+  # print n.get_weights()[0].shape
+  # print t_d
+  exit()
 
-# accum_deltas = map(lambda x: np.zeros_like(x.shape), n.get_weights())
-# print n.build_theta_deltas(accum_deltas, n.get_weights, z, )
 
 # print cost_fn(y, a[-1])
 # print map(lambda x: None if x is None else x.shape, a)
